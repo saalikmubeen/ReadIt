@@ -12,7 +12,8 @@ const showModal = document.getElementById("show-modal"),
     modal = document.getElementById("modal"),
     addItemBtn = document.getElementById("add-item"),
     itemUrl = document.getElementById("url"), // input
-    itemList = document.getElementById("items");
+    itemList = document.getElementById("items"),
+    search = document.getElementById("search");
 
 const toggleModalBtns = () => {
 
@@ -99,4 +100,22 @@ ipcRenderer.on("item:add:success", (event, data) => {
 // show saved items (in local storage) on page load 
 savedItems.forEach((item) => {
     addItem(item);
+})
+
+
+
+// search for items
+
+search.addEventListener("keyup", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const readItems = document.getElementsByClassName("read-item");
+
+    Array.from(readItems).forEach((item) => {
+        
+        if (!item.innerText.toLowerCase().includes(searchTerm)) {
+            item.style.display = "none";
+        } else {
+            item.style.display = "flex";
+        }
+    })
 })
