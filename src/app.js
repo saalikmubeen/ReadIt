@@ -67,19 +67,23 @@ itemUrl.addEventListener("keyup", (e) => {
 
 
 const addItem = (item, idx) => {
-
     let itemNode = document.createElement("div");
     itemNode.className = "read-item";
 
-
-
-    if(idx !== undefined && idx === 0) {
+    if (idx !== undefined && idx === 0) {
         itemNode.classList.add("selected");
     }
 
-    // add event listener to the created item 
-    itemNode.addEventListener("click", (e) => {
+    // set item url as data attribute
+    itemNode.setAttribute("data-url", item.url);
 
+    itemNode.innerHTML = `
+        <img src=${item.screenshot} alt="screenshot of page"/>
+        <h2>${item.title}</h2>
+    `;
+
+    // add event listener to the created item
+    itemNode.addEventListener("click", (e) => {
         // unselect the currently selected item
         document.getElementsByClassName("read-item selected")[0] &&
             document
@@ -88,12 +92,28 @@ const addItem = (item, idx) => {
 
         // select the clicked item
         e.currentTarget.classList.add("selected");
-    })
+    });
 
-    itemNode.innerHTML = `
-        <img src=${item.screenshot} alt="screenshot of page"/>
-        <h2>${item.title}</h2>
-    `;
+
+    // attach double click handler to open the item in a new window;
+
+    itemNode.addEventListener("dblclick", (e) => {
+        const url = e.currentTarget.getAttribute("data-url");
+        // console.log(url) 
+
+        // open item in proxy BrowserWindow;
+        let win = window.open(url, "", `
+            maxWidth=2000,
+            maxHeight=2000,
+            width=1200,
+            height=1200,
+            backgroundColor="#DEDEDE",
+            nodeIntegrations=0,
+            contextIsolation=1
+        `)
+
+
+    })
 
     itemList.appendChild(itemNode);
 }
