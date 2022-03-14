@@ -1,5 +1,5 @@
 // Modules
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const windowStateKeeper = require("electron-window-state");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -37,7 +37,7 @@ function createWindow () {
   mainWindow.loadFile('src/main.html')
 
   // Open DevTools - Remove for PRODUCTION!
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Listen for window being closed
   mainWindow.on('closed',  () => {
@@ -57,3 +57,13 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) createWindow()
 })
+
+
+
+ipcMain.on("item:add", (event, url) => {
+  // console.log(url)
+
+  setTimeout(() => {
+      event.sender.send("item:add:success", "New Item from main process");
+  }, 3000)
+});
