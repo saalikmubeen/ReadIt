@@ -60,10 +60,67 @@ app.on('activate', () => {
 
 
 
-ipcMain.on("item:add", (event, url) => {
-  // console.log(url)
 
-  setTimeout(() => {
-      event.sender.send("item:add:success", "New Item from main process");
-  }, 3000)
+
+
+let offScreenBrowserWindow;
+
+// create new offscreen browser window;
+const readItem = (url, callback) => {
+    
+  offScreenBrowserWindow = new BrowserWindow({
+      width: 500,
+      height: 500,
+      show: false,
+      webPreferences: {
+        offscreen: true,
+        nodeIntegration: false
+      }
+  })
+
+  // load item url into the offscreen window
+  offScreenBrowserWindow.loadURL(url);
+
+
+  // wait for contents to finish loading
+  offScreenBrowserWindow.webContents.on("did-finish-load", (e) => {
+      
+    // get page title
+    const title = offScreenBrowserWindow.getTitle();
+
+    // get page screenshot - thumbnail
+
+    offScreenBrowserWindow.webContents.capturePage()
+    .then((image) => {
+        // convert image to data url
+        const screenshot = image.toDataURL();
+
+        console.log(screenshot);
+
+        // execute callback with title and screenshot
+
+        callback({
+            title,
+            screenshot,
+            url,
+        });
+
+        // clean up
+        offScreenBrowserWindow.close();
+        offScreenBrowserWindow = null;
+    });
+  })
+  .catch(err => {
+    console.log(err)
+  }) 
+}
+
+
+
+ipcMain.on("item:add", (event, url) => {
+  
+  readItem(url, (item) => {
+      event.sender.send("item:add:success", item);
+  })
+
 });
