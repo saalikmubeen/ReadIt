@@ -1,0 +1,23 @@
+{
+  "name": "electron-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "nodemon --exec electron ."
+  },
+  "repository": "",
+  "keywords": [
+    "Electron"
+  ],
+  "author": "Saalik Mubeen",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^17.1.2",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "electron-window-state": "^5.0.3"
+  }
+}
