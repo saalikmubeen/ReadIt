@@ -90,28 +90,29 @@ const readItem = (url, callback) => {
 
     // get page screenshot - thumbnail
 
-    offScreenBrowserWindow.webContents.capturePage()
-    .then((image) => {
-        // convert image to data url
-        const screenshot = image.toDataURL();
+    offScreenBrowserWindow.webContents
+        .capturePage()
+        .then((image) => {
+            // convert image to data url
+            const screenshot = image.toDataURL();
 
-        console.log(screenshot);
+            console.log(screenshot);
 
-        // execute callback with title and screenshot
+            // execute callback with title and screenshot
 
-        callback({
-            title,
-            screenshot,
-            url,
+            callback({
+                title,
+                screenshot,
+                url,
+            });
+
+            // clean up
+            offScreenBrowserWindow.close();
+            offScreenBrowserWindow = null;
+        })
+        .catch((err) => {
+            console.log(err);
         });
-
-        // clean up
-        offScreenBrowserWindow.close();
-        offScreenBrowserWindow = null;
-    });
-  })
-  .catch(err => {
-    console.log(err)
   }) 
 }
 

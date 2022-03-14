@@ -4,13 +4,15 @@
 
 const { ipcRenderer } = require("electron");
 
+const savedItems = JSON.parse(localStorage.getItem("saved-items")) || [];
+
 
 const showModal = document.getElementById("show-modal"),
     closeModal = document.getElementById("close-modal"),
     modal = document.getElementById("modal"),
     addItemBtn = document.getElementById("add-item"),
-    itemUrl = document.getElementById("url"); // input
-
+    itemUrl = document.getElementById("url"), // input
+    itemList = document.getElementById("items");
 
 const toggleModalBtns = () => {
 
@@ -63,24 +65,38 @@ itemUrl.addEventListener("keyup", (e) => {
 } )
 
 
+const addItem = (item) => {
+
+    let itemNode = document.createElement("div");
+    itemNode.className = "read-item";
+
+    itemNode.innerHTML = `
+        <img src=${item.screenshot} alt="screenshot of page"/>
+        <h2>${item.title}</h2>
+    `;
+
+    itemList.appendChild(itemNode);
+}
+
 ipcRenderer.on("item:add:success", (event, data) => {
 
     // console.log(data)
 
     // add new item to the items list
 
-    let itemNode = document.createElement("div");
-    itemNode.className = "read-item";
+    addItem(data);
 
-    itemNode.innerHTML = `
-        <img src=${data.screenshot} alt="screenshot of page"/>
-        <h2>${data.title}</h2>
-    `
-
-    const itemList = document.getElementById("items");
-    itemList.appendChild(itemNode);
+    // save item to local storage
+    savedItems.push(data)
+    localStorage.setItem("saved-items", JSON.stringify(savedItems));
 
     toggleModalBtns()
     modal.style.display = "none";
     itemUrl.value = "";
 });
+
+
+// show saved items (in local storage) on page load 
+savedItems.forEach((item) => {
+    addItem(item);
+})
