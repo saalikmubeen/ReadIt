@@ -65,7 +65,20 @@ itemUrl.addEventListener("keyup", (e) => {
 
 ipcRenderer.on("item:add:success", (event, data) => {
 
-    console.log(data)
+    // console.log(data)
+
+    // add new item to the items list
+
+    let itemNode = document.createElement("div");
+    itemNode.className = "read-item";
+
+    itemNode.innerHTML = `
+        <img src=${data.screenshot} alt="screenshot of page"/>
+        <h2>${data.title}</h2>
+    `
+
+    const itemList = document.getElementById("items");
+    itemList.appendChild(itemNode);
 
     toggleModalBtns()
     modal.style.display = "none";
