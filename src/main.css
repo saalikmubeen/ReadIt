@@ -105,7 +105,17 @@ main {
     align-items: center;
     border-bottom: lightgray 2px solid;
     padding: 10px;
-    background: #FAFAFA
+    background: #FAFAFA;
+    border-left: 5px solid lightgray;
+    cursor: pointer;
+}
+
+.read-item:hover {
+    background: #EEE;
+}
+
+.read-item.selected {
+    border-left-color: dodgerblue;
 }
 
 .read-item img {

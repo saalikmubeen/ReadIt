@@ -66,10 +66,29 @@ itemUrl.addEventListener("keyup", (e) => {
 } )
 
 
-const addItem = (item) => {
+const addItem = (item, idx) => {
 
     let itemNode = document.createElement("div");
     itemNode.className = "read-item";
+
+
+
+    if(idx !== undefined && idx === 0) {
+        itemNode.classList.add("selected");
+    }
+
+    // add event listener to the created item 
+    itemNode.addEventListener("click", (e) => {
+
+        // unselect the currently selected item
+        document.getElementsByClassName("read-item selected")[0] &&
+            document
+                .getElementsByClassName("read-item selected")[0]
+                .classList.remove("selected");
+
+        // select the clicked item
+        e.currentTarget.classList.add("selected");
+    })
 
     itemNode.innerHTML = `
         <img src=${item.screenshot} alt="screenshot of page"/>
@@ -98,8 +117,8 @@ ipcRenderer.on("item:add:success", (event, data) => {
 
 
 // show saved items (in local storage) on page load 
-savedItems.forEach((item) => {
-    addItem(item);
+savedItems.forEach((item, idx) => {
+    addItem(item, idx);
 })
 
 
@@ -118,4 +137,35 @@ search.addEventListener("keyup", (e) => {
             item.style.display = "flex";
         }
     })
+})
+
+
+document.addEventListener("keyup", (e) => {
+
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        const selectedItem = document.getElementsByClassName("read-item selected")[0];
+
+        if (selectedItem) {
+            
+            if (e.key === "ArrowUp") {
+                const prevItem = selectedItem.previousSibling;
+                console.log(prevItem)
+                if (prevItem && prevItem.classList) {
+                    selectedItem.classList.remove("selected");
+                    prevItem.classList.add("selected");
+                }
+            } else if (e.key === "ArrowDown") {
+                const nextItem = selectedItem.nextSibling;
+                console.log(nextItem);
+                if (nextItem) {
+                    selectedItem.classList.remove("selected");
+                    nextItem.classList.add("selected");
+                } else {
+                    selectedItem.classList.remove("selected");
+                    const items = document.getElementsByClassName("read-item")
+                    items[0] && items[0].classList.add("selected")
+                }
+            }
+        }
+    }
 })
