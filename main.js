@@ -1,5 +1,5 @@
 // Modules
-const {app, BrowserWindow, ipcMain} = require('electron')
+const {app, BrowserWindow, ipcMain, shell, Menu} = require('electron')
 const windowStateKeeper = require("electron-window-state");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -37,28 +37,13 @@ function createWindow () {
   mainWindow.loadFile('src/main.html')
 
   // Open DevTools - Remove for PRODUCTION!
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   // Listen for window being closed
   mainWindow.on('closed',  () => {
     mainWindow = null
   })
 }
-
-// Electron `app` is ready
-app.on('ready', createWindow)
-
-// Quit when all windows are closed - (Not macOS - Darwin)
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
-
-// When app icon is clicked and app is running, (macOS) recreate the BrowserWindow
-app.on('activate', () => {
-  if (mainWindow === null) createWindow()
-})
-
-
 
 
 
@@ -125,3 +110,109 @@ ipcMain.on("item:add", (event, url) => {
   })
 
 });
+
+
+
+
+// Menu template
+const menuTemplate = [
+    {
+        label: "Items",
+        submenu: [
+            {
+                label: "Add New",
+                click: () => {
+                    mainWindow.webContents.send("open:add");
+                },
+                accelerator: "CmdOrCtrl+O",
+            },
+            {
+                label: "Read Item",
+                accelerator: "CmdOrCtrl+Enter",
+                click: () => {
+                    mainWindow.webContents.send("read:item");
+                },
+            },
+            {
+                label: "Delete Item",
+                accelerator: "CmdOrCtrl+Backspace",
+                click: () => {
+                    mainWindow.webContents.send("delete:item");
+                },
+            },
+            {
+                label: "Open in Browser",
+                accelerator: "CmdOrCtrl+Shift+O",
+                click: () => {
+                    mainWindow.webContents.send("open-in-browser");
+                },
+            },
+            {
+                label: "Search Items",
+                accelerator: "CmdOrCtrl+S",
+                click: () => {
+                    mainWindow.webContents.send("search:items");
+                },
+            },
+        ],
+    },
+    {
+        role: "editMenu",
+    },
+    {
+        role: "windowMenu",
+    },
+    {
+        role: "help",
+        submenu: [
+            {
+                label: "Learn more",
+                click: () => {
+                    shell.openExternal("https://github.com/saalikmubeen");
+                },
+            },
+        ],
+    },
+];
+
+// Set Mac-specific first menu item
+if (process.platform === 'darwin') {
+
+  menuTemplate.unshift({
+    label: app.getName(),
+    submenu: [
+      { role: 'about' },
+      { type: 'separator'},
+      { role: 'services' },
+      { type: 'separator'},
+      { role: 'hide' },
+      { role: 'hideothers' },
+      { role: 'unhide' },
+      { type: 'separator'},
+      { role: 'quit' }
+    ]
+  })
+}
+
+
+// Electron `app` is ready
+app.on('ready', () => {
+    // create main window
+    createWindow();
+
+    // Build menu
+    const menu = Menu.buildFromTemplate(menuTemplate);
+
+    // Set as main app menu
+    Menu.setApplicationMenu(menu);
+})
+
+// Quit when all windows are closed - (Not macOS - Darwin)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit()
+})
+
+// When app icon is clicked and app is running, (macOS) recreate the BrowserWindow
+app.on('activate', () => {
+  if (mainWindow === null) createWindow()
+})

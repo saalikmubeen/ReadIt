@@ -2,7 +2,7 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, shell } = require("electron");
 
 const savedItems = JSON.parse(localStorage.getItem("saved-items")) || [];
 
@@ -13,7 +13,7 @@ const showModal = document.getElementById("show-modal"),
     addItemBtn = document.getElementById("add-item"),
     itemUrl = document.getElementById("url"), // input
     itemList = document.getElementById("items"),
-    search = document.getElementById("search");
+    search = document.getElementById("search"); // input
 
 const toggleModalBtns = () => {
 
@@ -189,3 +189,62 @@ document.addEventListener("keyup", (e) => {
         }
     }
 })
+
+ipcRenderer.on("open:add", () => {
+    showModal.click()
+});
+
+ipcRenderer.on("read:item", () => {
+    
+    const selectedItem = document.getElementsByClassName("read-item selected")[0];
+
+    let newWin = window.open(
+        selectedItem.dataset.url,
+        `
+            maxWidth=2000,
+            maxHeight=2000,
+            width=1200,
+            height=1200,
+            backgroundColor="#DEDEDE",
+            nodeIntegrations=0,
+            contextIsolation=1
+        `
+    );
+});
+
+
+
+ipcRenderer.on("delete:item", () => {
+    const selectedItem =
+        document.getElementsByClassName("read-item selected")[0];
+
+    // remove item from the list
+    const newSavedItems = savedItems.filter(
+        (item) => {
+            // console.log(item.title === selectedItem.innerText);
+            return item.title !== selectedItem.innerText
+        }
+    );
+
+    // update local storage
+
+    localStorage.setItem("saved-items", JSON.stringify(newSavedItems));
+
+    // remove item from the DOM;
+    selectedItem.remove();
+});
+
+
+
+ipcRenderer.on("open-in-browser", () => {
+    const selectedItem =
+        document.getElementsByClassName("read-item selected")[0];
+
+    shell.openExternal(selectedItem.dataset.url);
+});
+
+
+
+ipcRenderer.on("search:items", () => {
+    search.focus()
+});
